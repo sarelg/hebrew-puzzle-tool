@@ -5,6 +5,17 @@ export default function HebrewPuzzleTool() {
   const [numWords, setNumWords] = useState('');
   const [results, setResults] = useState([]);
 
+  // Function to extract and display only matching words
+  const extractMatchingWords = (text) => {
+    if (!knownPattern || !text) return [];
+
+    const regexPattern = knownPattern.replace(/_/g, '[אבגדהוזחטיכלמנסעפצקרשת]'); // Match Hebrew letters only
+    const regex = new RegExp(regexPattern, 'g');
+
+    // Split the text into words and filter matches
+    return text.split(/\s+/).filter((word) => regex.test(word));
+  };
+
   const handleSearch = async () => {
     try {
       const response = await fetch('http://localhost:8080/search', {
@@ -54,13 +65,28 @@ export default function HebrewPuzzleTool() {
 
       <div className="mt-6">
         {results.length > 0 ? (
-          results.map((item, index) => (
-            <div key={index} className="border-b py-2">
-              <h2 className="font-bold">{item.title}</h2>
-              <p>{item.snippet}</p>
-              <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-blue-500">לינק</a>
-            </div>
-          ))
+          results.map((item, index) => {
+            const matches = [
+              ...extractMatchingWords(item.title),
+              ...extractMatchingWords(item.snippet),
+            ];
+
+            return (
+              <div key={index} className="border-b py-4">
+                {matches.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {matches.map((word, idx) => (
+                      <span key={idx} className="bg-yellow-300 px-2 py-1 rounded">
+                        {word}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">אין מילים תואמות.</p>
+                )}
+              </div>
+            );
+          })
         ) : (
           <p>אין תוצאות להצגה.</p>
         )}

@@ -31,7 +31,7 @@ def search():
     known_pattern = data.get('knownPattern', '')
     num_words = data.get('numWords')
 
-    query = known_pattern.replace('_', '*')
+    query = known_pattern.replace('_', '[א-ת]')
     if num_words:
         query += f" {num_words} מילים"
 
